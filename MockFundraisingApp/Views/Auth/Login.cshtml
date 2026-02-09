@@ -23,7 +23,7 @@
                     </p>
 
                     <div class="d-grid gap-2">
-                        <button id="googleBtn" type="button" class="auth-btn btn btn-google btn-lg">
+                        <button id="google-login-btn" type="button" class="auth-btn btn btn-google btn-lg">
                             <svg class="auth-icon" viewBox="0 0 48 48" aria-hidden="true">
                                 <path fill="#EA4335" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.6l6.85-6.85C35.9 2.35 30.4 0 24 0 14.82 0 6.73 5.48 3.19 13.44l7.98 6.2C13.2 13.5 18.17 9.5 24 9.5z" />
                                 <path fill="#34A853" d="M46.1 24.5c0-1.63-.15-3.2-.43-4.7H24v9.02h12.43c-.54 2.9-2.16 5.35-4.6 7l7.16 5.57C43.96 37.1 46.1 31.4 46.1 24.5z" />
@@ -69,7 +69,7 @@
                                 Create account
                             </button>
                         </div>
-                        
+
                     </form>
                 </div>
             </div>
@@ -82,8 +82,62 @@
     window.returnUrl = "@(ViewBag.ReturnUrl ?? "/")";
 </script>
 
-<script type="module" src="~/js/auth-login.js"></script>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+          apiKey: "@ViewBag.Firebase.apiKey",
+          authDomain: "@ViewBag.Firebase.authDomain",
+          projectId: "@ViewBag.Firebase.projectId"
+        };
+
+        const returnUrl = "@(ViewBag.ReturnUrl ?? "/")";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // TODO: set this to your actual button id
+        const btn = document.getElementById("google-login-btn");
+
+        if (!btn) {
+          console.error("Google login button not found. Add id='google-login-btn' to the button.");
+        } else {
+          btn.addEventListener("click", async (e) => {
+            e.preventDefault();
+
+            try {
+              const result = await signInWithPopup(auth, provider);
+              const user = result.user;
+              const idToken = await user.getIdToken();
+
+              const resp = await fetch("/Auth/Session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({
+                  idToken: idToken,
+                  returnUrl: returnUrl,
+                  accountCreated: false
+                })
+              });
+
+              if (!resp.ok) {
+                const text = await resp.text();
+                throw new Error(`Session failed: ${resp.status} ${text}`);
+              }
+
+              const data = await resp.json();
+              window.location.href = data.returnUrl || "/";
+            } catch (err) {
+              console.error(err);
+              alert("Login failed. Check console for details.");
+            }
+          });
+        }
+    </script>
 }
