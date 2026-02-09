@@ -1,0 +1,117 @@
+﻿@model MockFundraisingApp.ViewModels.RequestsListVm
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Fundraising Requests";
+    var types = (string[])ViewBag.Types;
+
+    var sortItems = new List<SelectListItem>
+    {
+        new("Most recent", "recent", Model.Sort == "recent"),
+        new("Most funded", "funded", Model.Sort == "funded"),
+        new("Closest to completion", "close", Model.Sort == "close")
+    };
+
+    var typeItems = new List<SelectListItem>
+    {
+    new("All", "", string.IsNullOrEmpty(Model.Type))
+    };
+
+    typeItems.AddRange(types.Select(t => new SelectListItem(t, t, Model.Type == t)));
+}
+
+<h2>Fundraising Requests</h2>
+<p class="text-muted">
+    Browse active fundraising requests and support a cause that matters.
+</p>
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-sm-4">
+        <label class="form-label">Sort</label>
+        <select class="form-select" name="sort" asp-items="sortItems"></select>
+    </div>
+
+    <div class="col-sm-4">
+        <label class="form-label">Filter by type</label>
+        <select class="form-select" name="type" asp-items="typeItems"></select>
+    </div>
+
+    <div class="col-sm-4 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Apply</button>
+        <a class="btn btn-outline-secondary" href="/">Reset</a>
+        <a class="btn btn-success ms-auto" href="/Requests/Create">Create</a>
+    </div>
+</form>
+
+@if (Model.Requests.Count == 0)
+{
+    <div class="alert alert-info">No requests found.</div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var r in Model.Requests)
+        {
+            var pct = r.DonationLimit <= 0 ? 0 : (r.CurrentAmount / r.DonationLimit) * 100;
+            if (pct < 0) pct = 0;
+            if (pct > 100) pct = 100;
+
+            <a asp-controller="Requests" asp-action="Details" asp-route-id="@r.Id" class="list-group-item list-group-item-action">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong>@r.Requester</strong>
+                        <span class="badge bg-secondary ms-2">@r.RequestType</span>
+                    </div>
+                    <div>
+                        @r.CurrentAmount.ToString("C") / @r.DonationLimit.ToString("C")
+                    </div>
+                </div>
+
+                <div class="progress mt-2" style="height: 10px;">
+                    <div class="progress-bar" role="progressbar" style="width: @pct.ToString("0")%;"></div>
+                </div>
+
+                <div class="mt-2 small text-muted">
+                    Created: @r.CreatedAt.ToDateTime().ToLocalTime().ToString("MMM d, yyyy")
+                    Donations: @r.DonationCount
+                </div>
+            </a>
+        }
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+
+        <div class="text-muted small">
+            Page @Model.PageNumber
+            • Showing up to @Model.PageSize results
+        </div>
+
+        <div class="d-flex gap-2">
+            <!-- Previous Pagination Button-->
+            @if ((bool)ViewBag.HasPrev)
+            {
+                <a class="btn btn-primary"
+                   href="/?sort=@Model.Sort&type=@Model.Type&dir=prev">
+                    Previous
+                </a>
+            }
+            else
+            {
+                <button class="btn btn-outline-secondary" disabled>Previous</button>
+            }
+
+
+            <!-- Next Pagination Button-->
+            @if (!string.IsNullOrWhiteSpace(Model.NextCursor))
+            {
+                <a class="btn btn-primary"
+                   href="/?sort=@Model.Sort&type=@Model.Type&cursor=@Model.NextCursor&dir=next">
+                    Next
+                </a>
+            }
+            else
+            {
+                <button class="btn btn-outline-secondary" disabled>Next</button>
+            }
+        </div>
+    </div>
+
+}

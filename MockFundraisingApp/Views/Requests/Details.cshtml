@@ -1,0 +1,112 @@
+﻿@model MockFundraisingApp.ViewModels.RequestDetailsVm
+@{
+    ViewData["Title"] = "Request Details";
+
+    var r = Model.Request;
+    var pct = r.DonationLimit <= 0 ? 0 : (r.CurrentAmount / r.DonationLimit) * 100;
+    if (pct < 0) pct = 0;
+    if (pct > 100) pct = 100;
+}
+
+@if (TempData["Err"] is string err)
+{
+    <div class="alert alert-danger">@err</div>
+}
+@if (TempData["Ok"] is string ok)
+{
+    <div class="alert alert-success">@ok</div>
+}
+
+<h2>Request Details</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h5 class="card-title mb-1">@r.Requester</h5>
+                <span class="badge bg-secondary">@r.RequestType</span>
+            </div>
+            <div class="text-end">
+                <div class="fw-bold">@r.CurrentAmount.ToString("C") / @r.DonationLimit.ToString("C")</div>
+                <div class="text-muted small">Remaining: @r.RemainingAmount.ToString("C")</div>
+            </div>
+        </div>
+
+        <div class="progress mt-3" style="height: 12px;">
+            <div class="progress-bar" role="progressbar" style="width: @pct.ToString("0")%;"></div>
+        </div>
+
+        <div class="mt-2 text-muted small">
+            Created: @r.CreatedAt.ToDateTime().ToLocalTime().ToString("MMM d, yyyy")
+            Donations: @r.DonationCount
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Donate</h5>
+
+                <form action="/Requests/Details/@Model.Request.Id/donate" method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label">Your name</label>
+                        <input asp-for="DonorName" class="form-control" />
+                        <span asp-validation-for="DonorName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input asp-for="Amount" class="form-control" type="number" step="0.01" />
+                        <span asp-validation-for="Amount" class="text-danger"></span>
+                    </div>
+
+                    <button class="btn btn-primary" type="submit">Donate</button>
+                    <a class="btn btn-outline-secondary" href="/">Back</a>
+                </form>
+
+                <div class="text-muted small mt-2">
+                    Donations are simulated. No real payments are processed.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Recent Donations</h5>
+
+                @if (Model.Donations.Count == 0)
+                {
+                    <div class="text-muted">No donations yet.</div>
+                }
+                else
+                {
+                    <div class="list-group">
+                        @foreach (var d in Model.Donations)
+                        {
+                            <div class="list-group-item d-flex justify-content-between">
+                                <div>
+                                    <strong>@d.DonorName</strong>
+                                    <div class="text-muted small">
+                                        @d.CreatedAt.ToDateTime().ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                    </div>
+                                </div>
+                                <div class="fw-bold">@d.Amount.ToString("C")</div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

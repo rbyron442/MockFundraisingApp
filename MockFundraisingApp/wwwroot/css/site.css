@@ -1,0 +1,135 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+    background: linear-gradient(180deg, #f7f8fa 0%, #eef1f5 100%);
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem #fff, 0 0 0 0.25rem #258cfb;
+}
+
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+.auth-shell {
+    background: #f6f8fb;
+}
+
+.btn-lg {
+    transition: transform .08s ease, box-shadow .08s ease;
+}
+
+    .btn-lg:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+.auth-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 2.25rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.06);
+}
+
+.auth-title {
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.auth-subtitle {
+    color: #5b6472;
+}
+
+.login-illustration {
+    max-height: 420px;
+    width: 100%;
+    object-fit: contain;
+    opacity: 0.95;
+    filter: saturate(.9);
+}
+
+@media (max-width: 992px) {
+    .login-illustration {
+        max-height: 260px;
+        margin-bottom: 2rem;
+    }
+}
+
+.divider:before,
+.divider:after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e7ebf2;
+}
+
+.auth-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .65rem;
+    width: 100%;
+    font-weight: 600;
+    line-height: 1;
+    padding-top: .85rem;
+    padding-bottom: .85rem;
+}
+
+.auth-icon {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    display: block;
+    position: relative;
+    top: 1px;
+}
+
+.btn-google {
+    background: #fff;
+    color: #1f1f1f;
+    border: 1px solid #dadce0;
+    box-shadow: none;
+}
+
+    .btn-google:hover {
+        background: #f8f9fa;
+    }
+
+.btn-apple {
+    background: #000;
+    color: #fff;
+    border: 1px solid #000;
+    box-shadow: none;
+}
+
+    .btn-apple:hover {
+        background: #111;
+        border-color: #111;
+    }
+
+main {
+    padding-top: 2.5rem;
+}

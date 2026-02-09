@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="MockFundraisingApp.Tests/MockFundraisingApp.Tests.csproj" />
+  <Project Path="MockFundraisingApp/MockFundraisingApp.csproj" />
+</Solution>
